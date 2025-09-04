@@ -1,0 +1,8 @@
+.env
+
+echo .env >> .gitignore
+echo "GOOGLE_CLIENT_ID=your_client_id_here" >> backend/.env.example
+echo "GOOGLE_CLIENT_SECRET=your_secret_here" >> backend/.env.example
+echo "JWT_SECRET=your_jwt_here" >> backend/.env.example
+
+echo "VITE_GOOGLE_CLIENT_ID=your_client_id_here" >> client/.env.example
