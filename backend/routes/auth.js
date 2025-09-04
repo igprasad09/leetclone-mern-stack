@@ -4,40 +4,76 @@ const passport = require("passport");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const { Users } = require("../models/db");
+const bcrypt = require("bcrypt");
 dotenv.config();
 
 const routes = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Normal login
-routes.post("/login", async (req, res) => {
+// Normal signup
+routes.post("/signup", async (req, res) => {
   const body = req.body;
-  const { email, password } = body.user;
+  const {email, password, username} = req.body.user;
 
   try {
     const user = await Users.findOne({ email });
+    if (!user) return res.json({ message: "OTP not same bro..." });
 
-    if (user.otp == body.otp) {
-      const payload = {
-        email,
-        password,
-      };
-      const token = jwt.sign(payload, JWT_SECRET);
-      res.cookie("token", token, {
-        httpOnly: true, // safer, not accessible from JS
-        secure: false, // true if using HTTPS
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
-      });
-      return res.json({ message: "Login successful", user });
-    } else {
-      return res.json({ message: "OTP is not same Bro..." });
+    // ✅ Check OTP
+    if (user.otp !== body.otp) {
+      return res.json({ message: "Invalid OTP" });
     }
-  } catch (err) {
-    return res.status(401).json({
-      err,
+
+    // ✅ Hash password properly
+    const saltRounds = 10;
+    const hashPassword = await bcrypt.hash(password, saltRounds);
+
+    // ✅ Update user with hashed password
+    await Users.findOneAndUpdate({ email }, { username, email, password: hashPassword });
+
+    // ✅ Create safe JWT payload (don’t store password)
+    const payload = { email, username };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
+
+    // ✅ Set cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // set true in production with HTTPS
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
+
+    return res.json({ message: "Login successful", user });
+  } catch (err) {
+    return res.json({ message: "Server error"});
   }
 });
+
+routes.post("/login", async(req, res)=>{
+  const {email, password} = req.body;
+
+  const user = await Users.findOne({email});
+  if(!user) return res.json({message: "user not found"});
+
+  const hashPass = user.password;
+  const isValid = await bcrypt.compare(password, hashPass);
+  if(!isValid){
+      return res.json({
+          message: "Incorect Credentials"
+      })
+  }
+
+  const payload = {email, password}
+  const token = jwt.sign(payload, JWT_SECRET, {expiresIn: "30d"});
+  res.cookie("token",token, {
+         httpOnly: true,
+         secure: false,
+         maxAge: 30 * 24 * 60 * 60 * 1000,
+  })
+  return res.json({
+      message: "Success"
+  })
+})
+
 
 // Verify with passport-jwt
 routes.get(
@@ -65,7 +101,7 @@ routes.get(
       secure: false, // true if using HTTPS
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
     });
-    res.redirect("http://localhost:5173/dashboard"); // redirect to frontend
+   res.redirect("http://localhost:5173/dashboard"); // redirect to frontend
   }
 );
 
@@ -120,12 +156,9 @@ routes.post("/sendotp", async (req, res) => {
       );
     }
 
-    res.json({ email, message: "OTP sent", info: info.messageId });
+   return res.json({ email, message: "OTP sent", info: info.messageId });
   } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ error: "Failed to send email", details: err.message });
+   return res.json({ error: "Failed to send email"});
   }
 });
 

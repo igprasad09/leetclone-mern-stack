@@ -17,24 +17,26 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { Otp_input } from "./ui/Otp_input";
 import { BackgroundBeams } from "./ui/background-beams";
+import { useNotification } from "./ui/Notification";
 
 export default function Signup() {
   const [user, setUser] = useRecoilState(newUserAtom);
   const otp = useRecoilValue(otpAtom);
   const [otpLoading, setOtploading] = useRecoilState(otpLoadingAtom);
+  const {showNotification, NotificationComponent} = useNotification();
 
   // 🔹 Email/Password Login
   async function handle_login() {
     if (!user.email || !user.password || !user.username || !otp || otp.length !== 6) {
-      return alert("Input is required!");
+      return showNotification("Input is required!")
     }
     try {
-      const res = await axios.post("http://localhost:3000/login", {user, otp}, {
+      const res = await axios.post("http://localhost:3000/signup", {user, otp}, {
         withCredentials: true,
       });
-      alert(res.data.message)
+      showNotification(res.data.message)
     } catch (err) {
-      console.error(err);
+      showNotification("incorect email")
     }
   }
 
@@ -44,15 +46,19 @@ export default function Signup() {
       const response = await axios.post("http://localhost:3000/sendotp", {
         email: user.email,
       });
-      console.log(response.data);
-      if (response) setOtploading(false);
+      showNotification(response.data);
+      if (response) {
+          setOtploading(false);
+          showNotification("otp sended successfully")
+      }
     } else {
-      alert("Please Enter email");
+      showNotification("Please Enter email");
     }
   }
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams />
+      <NotificationComponent/>
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>

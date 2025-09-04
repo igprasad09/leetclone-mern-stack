@@ -15,9 +15,11 @@ import { userAtom } from "@/context";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { BackgroundBeams } from "./ui/background-beams";
+import { useNotification } from "./ui/Notification";
 
 export default function Login() {
   const [user, setUser] = useRecoilState(userAtom);
+  const {showNotification, NotificationComponent} = useNotification();
 
   // 🔹 Email/Password Login
   async function handle_login() {
@@ -28,7 +30,7 @@ export default function Login() {
       const res = await axios.post("http://localhost:3000/login", user, {
         withCredentials: true,
       });
-      console.log("Normal Login:", res.data);
+      showNotification(res.data.message);
     } catch (err) {
       console.error(err);
     }
@@ -37,6 +39,7 @@ export default function Login() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams/>
+      <NotificationComponent/>
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>
@@ -70,9 +73,6 @@ export default function Login() {
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a href="#" className="ml-auto text-sm underline">
-                    Forgot password?
-                  </a>
                 </div>
                 <Input
                   id="password"
