@@ -17,17 +17,24 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { Otp_input } from "./ui/Otp_input";
 import { BackgroundBeams } from "./ui/background-beams";
+<<<<<<< HEAD
 import { useNotification } from "./ui/Notification";
+=======
+>>>>>>> 2d53f6e (adding signup db.js)
 
 export default function Signup() {
   const [user, setUser] = useRecoilState(newUserAtom);
   const otp = useRecoilValue(otpAtom);
   const [otpLoading, setOtploading] = useRecoilState(otpLoadingAtom);
+<<<<<<< HEAD
   const {showNotification, NotificationComponent} = useNotification();
+=======
+>>>>>>> 2d53f6e (adding signup db.js)
 
   // 🔹 Email/Password Login
   async function handle_login() {
     if (!user.email || !user.password || !user.username || !otp || otp.length !== 6) {
+<<<<<<< HEAD
       return showNotification("Input is required!")
     }
     try {
@@ -37,6 +44,17 @@ export default function Signup() {
       showNotification(res.data.message)
     } catch (err) {
       showNotification("incorect email")
+=======
+      return alert("Input is required!");
+    }
+    try {
+      const res = await axios.post("http://localhost:3000/login", {user, otp}, {
+        withCredentials: true,
+      });
+      alert(res.data.message)
+    } catch (err) {
+      console.error(err);
+>>>>>>> 2d53f6e (adding signup db.js)
     }
   }
 
@@ -46,6 +64,7 @@ export default function Signup() {
       const response = await axios.post("http://localhost:3000/sendotp", {
         email: user.email,
       });
+<<<<<<< HEAD
       showNotification(response.data);
       if (response) {
           setOtploading(false);
@@ -53,12 +72,21 @@ export default function Signup() {
       }
     } else {
       showNotification("Please Enter email");
+=======
+      console.log(response.data);
+      if (response) setOtploading(false);
+    } else {
+      alert("Please Enter email");
+>>>>>>> 2d53f6e (adding signup db.js)
     }
   }
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams />
+<<<<<<< HEAD
       <NotificationComponent/>
+=======
+>>>>>>> 2d53f6e (adding signup db.js)
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>
