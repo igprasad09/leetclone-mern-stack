@@ -7,7 +7,7 @@ export default function Dashboard() {
   useEffect(() => {
     axios
       .get("http://localhost:3000/verify", { withCredentials: true })
-      .then((res) => {setUser(res.data.message); console.log(res.data)})
+      .then((res) => {setUser(res.data.message); console.log(res.data.message)})
       .catch(() => setUser(null));
       
   }, []);
