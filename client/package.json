@@ -18,10 +18,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.1",
-<<<<<<< HEAD
     "framer-motion": "^12.23.12",
-=======
->>>>>>> 2d53f6e (adding signup db.js)
     "input-otp": "^1.4.2",
     "lucide-react": "^0.542.0",
     "motion": "^12.23.12",
