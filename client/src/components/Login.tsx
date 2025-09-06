@@ -15,10 +15,7 @@ import { userAtom } from "@/context";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { BackgroundBeams } from "./ui/background-beams";
-<<<<<<< HEAD
 import { useNotification } from "./ui/Notification";
-=======
->>>>>>> 2d53f6e (adding signup db.js)
 
 export default function Login() {
   const [user, setUser] = useRecoilState(userAtom);
@@ -42,10 +39,7 @@ export default function Login() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams/>
-<<<<<<< HEAD
       <NotificationComponent/>
-=======
->>>>>>> 2d53f6e (adding signup db.js)
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>
