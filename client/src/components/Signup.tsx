@@ -14,7 +14,7 @@ import {
 import { useRecoilState, useRecoilValue } from "recoil";
 import { newUserAtom, otpAtom, otpLoadingAtom } from "@/context";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Otp_input } from "./ui/Otp_input";
 import { BackgroundBeams } from "./ui/background-beams";
 import { useNotification } from "./ui/Notification";
@@ -24,6 +24,7 @@ export default function Signup() {
   const otp = useRecoilValue(otpAtom);
   const [otpLoading, setOtploading] = useRecoilState(otpLoadingAtom);
   const {showNotification, NotificationComponent} = useNotification();
+  const navigator = useNavigate();
 
   // 🔹 Email/Password Login
   async function handle_login() {
@@ -34,7 +35,11 @@ export default function Signup() {
       const res = await axios.post("http://localhost:3000/signup", {user, otp}, {
         withCredentials: true,
       });
-      showNotification(res.data.message)
+      if(res.data.message == "Login successful"){
+           navigator("/dashboard")
+      }else{
+         showNotification(res.data.message)
+      }
     } catch (err) {
       showNotification("incorect email")
     }

@@ -13,13 +13,14 @@ import {
 import { useRecoilState } from "recoil";
 import { userAtom } from "@/context";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BackgroundBeams } from "./ui/background-beams";
 import { useNotification } from "./ui/Notification";
 
 export default function Login() {
   const [user, setUser] = useRecoilState(userAtom);
   const {showNotification, NotificationComponent} = useNotification();
+  const navigation = useNavigate();
 
   // 🔹 Email/Password Login
   async function handle_login() {
@@ -30,7 +31,11 @@ export default function Login() {
       const res = await axios.post("http://localhost:3000/login", user, {
         withCredentials: true,
       });
-      showNotification(res.data.message);
+      if(res.data.message == "Success"){
+          navigation("/dashboard")
+      }else{
+          showNotification(res.data.message)
+      }
     } catch (err) {
       console.error(err);
     }
