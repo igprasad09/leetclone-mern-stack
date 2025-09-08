@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Otp_input } from "./ui/Otp_input";
 import { BackgroundBeams } from "./ui/background-beams";
 import { useNotification } from "./ui/Notification";
+import { toast } from "sonner";
 
 export default function Signup() {
   const [user, setUser] = useRecoilState(newUserAtom);
@@ -29,7 +30,7 @@ export default function Signup() {
   // 🔹 Email/Password Login
   async function handle_login() {
     if (!user.email || !user.password || !user.username || !otp || otp.length !== 6) {
-      return showNotification("Input is required!")
+      return toast.error("Input is required!")
     }
     try {
       const res = await axios.post("http://localhost:3000/signup", {user, otp}, {
@@ -38,10 +39,10 @@ export default function Signup() {
       if(res.data.message == "Login successful"){
            navigator("/dashboard")
       }else{
-         showNotification(res.data.message)
+         toast.success(res.data.message)
       }
     } catch (err) {
-      showNotification("incorect email")
+      toast.error("incorect Credentials")
     }
   }
 
@@ -51,13 +52,16 @@ export default function Signup() {
       const response = await axios.post("http://localhost:3000/sendotp", {
         email: user.email,
       });
-      showNotification(response.data);
       if (response) {
           setOtploading(false);
-          showNotification("otp sended successfully")
+          if(response.data.message == "Invalid OTP"){
+               toast.error(response.data.message);
+          }else{
+             toast.success("otp sended successfully")
+          }
       }
     } else {
-      showNotification("Please Enter email");
+      toast.error("Please Enter email");
     }
   }
   return (

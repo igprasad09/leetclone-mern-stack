@@ -15,17 +15,16 @@ import { userAtom } from "@/context";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { BackgroundBeams } from "./ui/background-beams";
-import { useNotification } from "./ui/Notification";
+import { toast } from "sonner";
 
 export default function Login() {
   const [user, setUser] = useRecoilState(userAtom);
-  const {showNotification, NotificationComponent} = useNotification();
   const navigation = useNavigate();
 
   // 🔹 Email/Password Login
   async function handle_login() {
     if (!user.email || !user.password) {
-      return alert("Input is required!");
+      return toast.error("Input is required!");
     }
     try {
       const res = await axios.post("http://localhost:3000/login", user, {
@@ -34,7 +33,7 @@ export default function Login() {
       if(res.data.message == "Success"){
           navigation("/dashboard")
       }else{
-          showNotification(res.data.message)
+          toast.error(res.data.message)
       }
     } catch (err) {
       console.error(err);
@@ -44,7 +43,6 @@ export default function Login() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams/>
-      <NotificationComponent/>
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>

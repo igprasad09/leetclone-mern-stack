@@ -30,3 +30,30 @@ export const otpLoadingAtom = atom({
    key: "otpLoading",
    default: false
 })
+
+export const wordsAtom = atom({
+   key: "wordsatom",
+   default: [
+       {
+         text: "”",
+       },
+       {
+         text: "QUALITY",
+       },
+       {
+         text: "OVER",
+       },
+       {
+         text: "QUANTITY ",
+         className: "text-blue-500 dark:text-blue-500",
+       },
+       {
+         text: "”",
+       },
+     ]
+});
+
+export const profileEmailAtom = atom({
+    key: "profileAtom",
+    default: ""
+})

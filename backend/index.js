@@ -6,6 +6,7 @@ const cookiParser = require("cookie-parser");
 const authRoute = require("./routes/auth");
 const passport = require("./passport");
 const session = require("express-session");
+const programsRoute = require("./routes/programs");
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.use(session({
 }));
 
 app.use("/", authRoute);
+app.use("/programs", programsRoute);
 
 app.listen(3000,()=>{
      console.log("server is running.....")

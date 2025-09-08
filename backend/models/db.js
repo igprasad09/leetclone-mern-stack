@@ -9,6 +9,13 @@ const Users = mongoose.model('users',{
            otp: String
 });
 
+const userSubmitionsDB = mongoose.model("submitions",{
+        userId: String,
+        programId: String,
+        solve: Boolean
+})
+
 module.exports = {
-      Users
+      Users,
+      userSubmitionsDB
 }
