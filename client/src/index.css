@@ -7,6 +7,11 @@
   --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
 }
  
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+body {
+  font-family: "Inter", sans-serif;
+}
+
 @keyframes spotlight {
   0% {
     opacity: 0;
