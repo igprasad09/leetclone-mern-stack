@@ -56,4 +56,22 @@ export const wordsAtom = atom({
 export const profileEmailAtom = atom({
     key: "profileAtom",
     default: ""
+});
+
+type program = {
+    id: string,
+    title: string,
+    difficulty: string,
+    category: string,
+    solutionlink: string
+}
+
+export const allprogramNamesAtom = atom<program[]>({
+     key: "allprogramsnamesatom",
+     default: []
+})
+
+export const programInfoAtom = atom<any>({
+      key:"programInfo",
+      default: null
 })
