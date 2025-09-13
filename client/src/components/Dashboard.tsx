@@ -3,7 +3,7 @@ import {  useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import { TypewriterEffect } from "./ui/typewriter-effect";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { allprogramNamesAtom, profileEmailAtom, wordsAtom } from "@/context";
+import { allprogramNamesAtom, profileEmailAtom, profileImageAtom, wordsAtom } from "@/context";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const words = useRecoilValue(wordsAtom);
   const setProfileEmail = useSetRecoilState(profileEmailAtom);
+  const setProfileImage = useSetRecoilState(profileImageAtom);
   const [allprograms, setAllprograms] = useRecoilState(allprogramNamesAtom);
   const [openVideo, setOpenVideo] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
@@ -33,7 +34,8 @@ export default function Dashboard() {
  
   useEffect(()=>{
       if(user){
-           setProfileEmail(user.email? user.email : user.emails[0].value)
+           setProfileEmail(user.email? user.email : user.emails[0].value);
+           setProfileImage(user.photos[0].value);
       }
   },[user]);
 
@@ -84,9 +86,9 @@ export default function Dashboard() {
           <tbody className="text-white">
 
             {allprograms ? allprograms.map((element, index)=>(
-              <tr key={index} onClick={()=>navigate(`/program/${element.id}`)} className="odd:bg-zinc-800 cursor-grab even:bg-zinc-700">
+              <tr key={index}  className="odd:bg-zinc-800 cursor-grab even:bg-zinc-700">
                 <td className="p-3"></td>
-                <td className="p-3 programHover">{element.title}</td>
+                <td onClick={()=>navigate(`/program/${element.id}`)} className="p-3 programHover">{element.title}</td>
                 <td className="p-3 text-green-400">{element.difficulty}</td>
                 <td className="p-3">{element.category}</td>
                 <td className="p-3">
