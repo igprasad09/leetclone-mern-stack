@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useSetRecoilState } from "recoil";
 import {  profileEmailAtom, programInfoAtom } from "@/context";
 import Leftside from "./Leftside";
+import Rightside from "./Rightside";
 
 export default function ProgramDetails() {
     const {id} = useParams();
@@ -52,7 +53,7 @@ export default function ProgramDetails() {
         <div className="w-screen h-screen flex">
       {/* Left */}
       <div
-        className="bg-zinc-800"
+        className="bg-zinc-800 overflow-y-scroll "
         style={{ width: `${dividerX}%` }}
       >
         <Leftside/>
@@ -69,7 +70,7 @@ export default function ProgramDetails() {
         className="bg-zinc-700 flex-1 "
         style={{ width: `${100 - dividerX}%` }}
       >
-        <p className="p-4 text-white">Right Panel</p>
+        <Rightside/>
       </div>
     </div>
 

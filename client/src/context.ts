@@ -71,7 +71,34 @@ export const allprogramNamesAtom = atom<program[]>({
      default: []
 })
 
-export const programInfoAtom = atom<any>({
+type programdet = {
+     constraints: object,
+     description: string,
+     difficulty: string,
+     dislike: string,
+     examples: string,
+     id: string,
+     like: string,
+     title: string,
+     visibility: string
+}
+
+export const programInfoAtom = atom<programdet |any>({
       key:"programInfo",
       default: null
+});
+
+export const languageAtom = atom({
+      key: "languageAtom",
+      default: "Python"
+});
+
+export const profileImageAtom = atom({
+     key: "progileImageAtom",
+     default:""
+});
+
+export const textsizeAtom = atom({
+     key: "sizeAtom",
+     default: 17
 })

@@ -1,4 +1,4 @@
-import { profileEmailAtom } from "@/context";
+import { profileEmailAtom, profileImageAtom } from "@/context";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -17,7 +17,8 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
             hr: 0,
             mi: 0,
             sec: 0
-  })
+  });
+  const profileImage = useRecoilValue(profileImageAtom);
   const navigate = useNavigate();
 
   function start_clock(){
@@ -52,6 +53,8 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
   }
   const {id} = useParams();
 
+ 
+  
   return (
     <div className="bg-zinc-800 h-13 w-full flex justify-between items-center">
       <div className="ml-4">
@@ -113,12 +116,12 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
           >
             <img
               className="w-8 h-8 mr-4 cursor-pointer rounded-full"
-              src="https://res.cloudinary.com/dcazlekl5/image/upload/v1757174737/avatar_hkcn7o.png"
+              src={profileImage? profileImage : "https://res.cloudinary.com/dcazlekl5/image/upload/v1757174737/avatar_hkcn7o.png"}
               alt="profile"
             />
 
             {hover && (
-              <div className="absolute right-0 mt-1 bg-neutral-700 text-white rounded-md shadow-lg p-2">
+              <div className="absolute z-10 right-0 mt-1 bg-neutral-700 text-white rounded-md shadow-lg p-2">
                 <p className="px-3 py-2 hover:bg-neutral-600 cursor-pointer">
                   {profileEmail? profileEmail : "No login"}
                 </p>
