@@ -155,6 +155,36 @@ export default function Rightside() {
     setResult(Array(programInfo.testCases.length).fill(undefined));
   }
 }, [programInfo]);
+ 
+  async function handle_submit() {
+  if (email === "") {
+    return toast.error("Email is required");
+  }
+
+  // Check if any element is undefined
+  if (result.some(element => element === undefined)) {
+    return toast("First run the code");
+  }
+
+  // Check if any test case failed
+  if (result.some(element => element === false)) {
+    return toast.error("All cases need to pass");
+  }
+
+  // All checks passed → send data
+  try {
+    const res = await axios.post("http://localhost:3000/programs/submit", {
+      email,
+      id: programInfo.id
+    });
+    console.log(res.data);
+    toast.success("Submission successful");
+  } catch (err) {
+    console.error(err);
+    toast.error("Something went wrong");
+  }
+}
+
 
  
   // ✅ do conditional rendering AFTER hooks
@@ -207,7 +237,7 @@ export default function Rightside() {
         </svg>
       )}
     </button>
-        <button className="text-green-500 bg-neutral-800 p-1.5 ml-3 rounded-sm cursor-pointer flex font-semibold justify-center"><svg className="text-green-500 mr-1 w-[23px] h-[23px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/></svg>
+        <button onClick={handle_submit} className="text-green-500 bg-neutral-800 p-1.5 ml-3 rounded-sm cursor-pointer flex font-semibold justify-center"><svg className="text-green-500 mr-1 w-[23px] h-[23px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/></svg>
         Submit</button>
          </div>
          <div className="flex items-center">

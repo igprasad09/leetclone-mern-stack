@@ -116,4 +116,9 @@ export const outputAtom = atom({
 export const resultAtom = atom({
      key: "resultAtom",
      default: {}
+});
+
+export const submitionAtom = atom({
+    key:"submitionAtom",
+    default: []
 })

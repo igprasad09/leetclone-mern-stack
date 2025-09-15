@@ -13,8 +13,9 @@ const Users = mongoose.model("users", {
 
 const userSubmitionsDB = mongoose.model("submitions", {
   userId: String,
-  programId: String,
-  solve: Boolean,
+  programId: [{
+      type: Number
+  }],
 });
 
 const programsDB = mongoose.model("programs", {
@@ -43,7 +44,7 @@ const programinfoDB = mongoose.model("programdetail",{
       testCases: [],
       tags: [],
       visibility: String
-},"programdetail")
+},"programdetail");
 
 module.exports = {
   Users,
