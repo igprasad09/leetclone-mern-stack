@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate()
   const words = useRecoilValue(wordsAtom);
   const setProfileEmail = useSetRecoilState(profileEmailAtom);
@@ -18,33 +17,15 @@ export default function Dashboard() {
   const [videoUrl, setVideoUrl] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/verify", { withCredentials: true })
-      .then((res) => {
-        setUser(res.data.message);
-      })
-      .catch(() => {
-        setUser(null)});
-
       axios.get("http://localhost:3000/programs")
           .then((res)=>{
                setAllprograms(res.data.programs);
         })
   }, []);
  
-  useEffect(()=>{
-      if(user){
-           setProfileEmail(user.email? user.email : user.emails[0].value);
-           setProfileImage(user.photos[0].value);
-      }
-  },[user]);
+  
 
-   function handle_logout(){
-      axios.post("http://localhost:3000/logout",{},{withCredentials: true}).then((res)=>{
-            toast.success(res.data.message)
-            setProfileEmail("")
-      });
-  }
+   
   function handle_videoOpen(url: string){
          let videoId = "";
 
@@ -67,7 +48,7 @@ export default function Dashboard() {
   }
   return (
     <div className="bg-zinc-900 text-white h-screen">
-      <Navbar log_out_click={handle_logout} clock={false} />
+      <Navbar clock={false} />
 
       <TypewriterEffect words={words} className="mt-10" />
 

@@ -1,7 +1,8 @@
 import { profileEmailAtom, profileImageAtom } from "@/context";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { toast } from "sonner";
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
    clock?: boolean,
    programdet?: boolean
 }
-export default function Navbar({ log_out_click, clock, programdet}: Props) {
+export default function Navbar({ clock, programdet}: Props) {
   const profileEmail = useRecoilValue(profileEmailAtom);
   const [hover, setHover] = useState(false);
   const [startTimer, setStartTimer] = useState(false);
@@ -18,8 +19,10 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
             mi: 0,
             sec: 0
   });
-  const profileImage = useRecoilValue(profileImageAtom);
+  const [profileImage, setProfileImage] = useRecoilState(profileImageAtom);
+  const setProfileEmail = useSetRecoilState(profileEmailAtom);
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
 
   function start_clock(){
          setStartTimer(true)     
@@ -53,7 +56,39 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
   }
   const {id} = useParams();
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/verify", { withCredentials: true })
+      .then((res) => {
+        setUser(res.data.message);
+      })
+      .catch(() => {
+        setUser(null)});
+  }, []);
  
+  useEffect(() => {
+  if (user) {
+    setProfileEmail(user.email ?? user.emails?.[0]?.value ?? "");
+    const photoUrl =
+      user.photos?.[0]?.value ??
+      user.picture ??        // Google OAuth style
+      user.photoURL ??       // Firebase style
+      "";
+    setProfileImage(photoUrl)
+  }
+}, [user]);
+
+function handle_logout(){
+      if(profileEmail == ""){
+          toast.message("You already Logout")
+      }else{
+        axios.post("http://localhost:3000/logout",{},{withCredentials: true}).then((res)=>{
+            toast.success(res.data.message)
+            setProfileEmail("")
+            setProfileImage("")
+      });
+      }
+  }
   
   return (
     <div className="bg-zinc-800 h-13 w-full flex justify-between items-center">
@@ -116,12 +151,12 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
           >
             <img
               className="w-8 h-8 mr-4 cursor-pointer rounded-full"
-              src={profileImage? profileImage : "https://res.cloudinary.com/dcazlekl5/image/upload/v1757174737/avatar_hkcn7o.png"}
+              src={profileImage != ""? profileImage :"https://res.cloudinary.com/dcazlekl5/image/upload/v1757174737/avatar_hkcn7o.png"}
               alt="profile"
             />
 
             {hover && (
-              <div className="absolute z-10 right-0 mt-1 bg-neutral-700 text-white rounded-md shadow-lg p-2">
+              <div key={profileEmail} className="absolute z-10 right-0 mt-1 bg-neutral-700 text-white rounded-md shadow-lg p-2">
                 <p className="px-3 py-2 hover:bg-neutral-600 cursor-pointer">
                   {profileEmail? profileEmail : "No login"}
                 </p>
@@ -131,7 +166,7 @@ export default function Navbar({ log_out_click, clock, programdet}: Props) {
 
           {/* Logout button (optional if you keep it in hover menu) */}
           <button
-            onClick={log_out_click}
+            onClick={handle_logout}
             className="p-2 mr-4 rounded-sm bg-neutral-700"
           >
             <img
