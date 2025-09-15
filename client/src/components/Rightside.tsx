@@ -1,10 +1,12 @@
-import { languageAtom, programInfoAtom, textsizeAtom } from "@/context";
+import { languageAtom, profileEmailAtom, programInfoAtom, textsizeAtom } from "@/context";
 import { useRecoilValue } from "recoil";
 import CustomizedMenus from "./ui/LanguageMenuBtn";
 import React, { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { AlertDialogDemo } from "./ui/SettingDailog";
 import axios from "axios";
+import ErrorDisplay from "./ui/DisplayEror";
+import { toast } from "sonner";
 
 export default function Rightside() {
   const programInfo = useRecoilValue(programInfoAtom);
@@ -12,6 +14,11 @@ export default function Rightside() {
   const [temp, setTemp] = useState(0);
   const textSize = useRecoilValue(textsizeAtom);
   const language = useRecoilValue(languageAtom);
+  const [outputBtn, setOutputBtn] = useState(false);
+  const [stdout, setStdout] = useState(null);
+  const [stderr, setStderr] = useState("");
+  const email = useRecoilValue(profileEmailAtom);
+  const [loading, setLoading] = useState(false);
 
   // ✅ always call hooks at top
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -90,8 +97,19 @@ export default function Rightside() {
   };
   
   async function handle_code_execute() {
+         setLoading(true)
          const response = await axios.post("http://localhost:3000/programs/programexicute", 
-             {code, language, testCases: programInfo.testCases})
+             {email,code, language, testCases: programInfo.testCases, stdio: programInfo.stdio});
+         if(response.data.message){
+              setLoading(false);
+              return toast.error(response.data.message);
+         }
+         setStdout(response.data?.results[0].output.run.stdout)
+         setStderr(response.data?.results[0].output.run.stderr)
+         if(response.data){
+            toast.info("check in outputs")
+         }
+         setLoading(false)
          console.log(response.data)
   }
  
@@ -102,21 +120,49 @@ export default function Rightside() {
       <div className="bg-zinc-900 flex items-center justify-between text-black">
          <div className="flex items-center">
             <CustomizedMenus />
-        <button onClick={handle_code_execute} className="bg-neutral-800 cursor-pointer ml-3 p-1 rounded-sm">
-          <svg
-            className="w-[28px] h-[28px] text-gray-300 dark:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
+         <button
+      onClick={handle_code_execute}
+      className="bg-neutral-800 cursor-pointer ml-3 p-1 rounded-sm flex items-center justify-center w-[40px] h-[40px]"
+    >
+      {loading ? (
+        // ⬇️ Loading Spinner SVG
+        <svg
+          className="animate-spin w-[24px] h-[24px] text-gray-300 dark:text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
             fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.6 5.2A1 1 0 0 0 7 6v12a1 1 0 0 0 1.6.8l8-6a1 1 0 0 0 0-1.6l-8-6Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
+      ) : (
+        // ⬇️ Your original play SVG
+        <svg
+          className="w-[28px] h-[28px] text-gray-300 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fillRule="evenodd"
+            d="M8.6 5.2A1 1 0 0 0 7 6v12a1 1 0 0 0 1.6.8l8-6a1 1 0 0 0 0-1.6l-8-6Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
+    </button>
         <button className="text-green-500 bg-neutral-800 p-1.5 ml-3 rounded-sm cursor-pointer flex font-semibold justify-center"><svg className="text-green-500 mr-1 w-[23px] h-[23px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/></svg>
         Submit</button>
          </div>
@@ -134,7 +180,7 @@ export default function Rightside() {
 >
   <Editor
     height="100%" // ✅ fill parent
-    language={language === "C" ? "cpp" : language.toLowerCase()}
+    language={language === "python" ? "python" : "javascript"}
     value={code}
     theme="vs-dark"
     onChange={(value) => setCode(value || "")}
@@ -154,8 +200,15 @@ export default function Rightside() {
 
         {/* Bottom Div */}
         <div className="bg-zinc-800 flex-1 overflow-auto">
-            <h1 className=" underline m-4 font-semibold">Testcases</h1>
-            <div className="flex">
+            <div className="flex items-center ">
+               <h1 onClick={()=>setOutputBtn(false)} className=" underline cursor-pointer m-4 font-semibold">Testcases</h1>
+               <button onClick={()=>setOutputBtn(true)} className="bg-red-600 font-semibold px-3 py-1 rounded-sm hover:bg-red-500 cursor-pointer">Outputs</button>
+            </div>
+            {outputBtn?<div className="bg-black ">
+                <p className={`p-4 italic font-mono ${stdout != ""? "text-green-400":""} ${stderr != ""? "text-red-400":""}`}>{stdout == ""? <ErrorDisplay errorOutput={stderr}/> : stdout}</p>
+            </div>:
+            <>
+             <div className="flex">
                 {programInfo.testCases.map((_: string, index: number)=>(
                   <button key={index} onClick={()=>handle_test(index)} className="bg-neutral-700 cursor-pointer font-semibold px-3 ml-3 rounded-sm py-1">Case {index+1}</button>
                 ))} 
@@ -164,6 +217,8 @@ export default function Rightside() {
             <div className="ml-4 bg-neutral-700 rounded-sm mr-4 p-2 font-semibold">{programInfo.testCases[temp].input}</div>
             <p className="ml-4 mt-4 font-semibold font-mono">Expected Output:</p>
             <div className="ml-4 bg-neutral-700 rounded-sm mr-4 p-2 font-semibold">{programInfo.testCases[temp].expectedOutput}</div>
+            </>}
+            
         </div>
       </div>
     </div>

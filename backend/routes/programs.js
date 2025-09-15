@@ -19,45 +19,73 @@ routes.post("/programinfo", async (req, res) => {
 });
 
 routes.post("/programexicute", async (req, res) => {
-  const { code, language, testCases } = req.body;
-
-  async function fetchRuntimes() {
-    const resp = await axios.get("https://emkc.org/api/v2/piston/runtimes");
-    return resp.data;
+  const {email,  code, language, stdio } = req.body;
+  
+  if(email == ""){
+      return res.json({
+          message: "Login is Requered!"
+      })
   }
-  let version = "";
-  (async () => {
-    const runtimes = await fetchRuntimes();
-    const langs = [language];
-    langs.forEach((lang) => {
-      const vs = runtimes
-        .filter(
-          (r) =>
-            r.language.toLowerCase() === lang ||
-            (r.aliases && r.aliases.includes(lang))
-        )
-        .map((r) => r.version);
-      version = vs[0]
-    });
-  })();
 
-   try {
-    const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
-      language,
-      version, // e.g. "3.10.0" for python, "10.2.0" for cpp
-      files: [
+  try {
+    // 1️⃣ Fetch runtimes
+    const runtimesResp = await axios.get(
+      "https://emkc.org/api/v2/piston/runtimes"
+    );
+    const runtimes = runtimesResp.data;
+
+    // 2️⃣ Find version
+    const versions = runtimes
+      .filter(
+        (r) =>
+          r.language.toLowerCase() === language.toLowerCase() ||
+          (r.aliases &&
+            r.aliases.includes(language.toLowerCase()))
+      )
+      .map((r) => r.version);
+
+    const version = versions[0];
+    if (!version)
+      return res.status(400).json({ error: "Language not supported" });
+
+    // 3️⃣ Prepare executions for each stdio entry
+    const promises = stdio.map(async (io, index) => {
+      let finalCode;
+
+      if (language.toLowerCase() === "python") {
+        finalCode = `${code}\n${io.python}`;
+      } else if (language.toLowerCase() === "javascript") {
+        finalCode = `${code}\n${io.javascript}`; // or your field name
+      } else {
+        finalCode = `${code}`;
+      }
+
+      const executeResp = await axios.post(
+        "https://emkc.org/api/v2/piston/execute",
         {
-          name: "main",
-          content: code,
-        },
-      ],
-      stdin: stdin || "",
+          language: language.toLowerCase(),
+          version,
+          files: [{ name: "main", content: finalCode }],
+        }
+      );
+
+      return {
+        index,
+        output: executeResp.data,
+      };
     });
 
-    res.json(response.data); // send Piston output back to client
+    // 4️⃣ Wait for all executions to finish
+    const results = await Promise.all(promises);
+
+    // 5️⃣ Send ONE response with all outputs
+    return res.json({
+      version,
+      results,
+    });
   } catch (err) {
     console.error(err.message);
-    return res.status(500).json({ error: "Error executing code" });
+    return res.status(500).json({ error: "Execution failed" });
   }
 });
 

@@ -53,7 +53,7 @@ export default function CustomizedMenus() {
   const open = Boolean(anchorEl);
 
   // all available languages
-  const allLanguages = ["python", "javascript", "c"];
+  const allLanguages = ["javascript","python"];
 
   // filter out currently selected language
   const menuLanguages = allLanguages.filter((lang) => lang !== language);

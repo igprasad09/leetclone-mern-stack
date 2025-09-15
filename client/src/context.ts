@@ -90,7 +90,7 @@ export const programInfoAtom = atom<programdet |any>({
 
 export const languageAtom = atom({
       key: "languageAtom",
-      default: "Python"
+      default: "javascript"
 });
 
 export const profileImageAtom = atom({
@@ -101,4 +101,9 @@ export const profileImageAtom = atom({
 export const textsizeAtom = atom({
      key: "sizeAtom",
      default: 17
+});
+
+export const exeCode = atom({
+   key:"exeCodeatom",
+   default:null
 })
