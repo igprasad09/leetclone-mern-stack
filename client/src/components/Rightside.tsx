@@ -1,5 +1,5 @@
-import { languageAtom, profileEmailAtom, programInfoAtom, textsizeAtom } from "@/context";
-import { useRecoilValue } from "recoil";
+import { languageAtom, outputAtom, profileEmailAtom, programInfoAtom, textsizeAtom } from "@/context";
+import { useRecoilState, useRecoilValue } from "recoil";
 import CustomizedMenus from "./ui/LanguageMenuBtn";
 import React, { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
@@ -19,6 +19,8 @@ export default function Rightside() {
   const [stderr, setStderr] = useState("");
   const email = useRecoilValue(profileEmailAtom);
   const [loading, setLoading] = useState(false);
+  const [output, setOutput] = useRecoilState(outputAtom);
+  const [result, setResult] = useState<boolean[]>([]);
 
   // ✅ always call hooks at top
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -110,8 +112,50 @@ export default function Rightside() {
             toast.info("check in outputs")
          }
          setLoading(false)
-         console.log(response.data)
+        setOutput(response.data.results);
   }
+
+  useEffect(() => {
+  type TestCase = { expectedOutput: string };
+  type OutputItem = { output: { run: { stdout: string } } };
+
+  const testcases = (programInfo?.testCases as TestCase[] | undefined)?.map(
+    (element) => element.expectedOutput
+  );
+
+  const exeOutputs = Array.isArray(output)
+    ? (output as OutputItem[]).map((element) => element.output.run.stdout)
+    : undefined;
+
+  const cleaned = exeOutputs?.map((item: string) => {
+    const stripped = item.trim();
+    return !isNaN(Number(stripped)) && stripped !== ''
+      ? Number(stripped)
+      : stripped;
+  });
+
+  if (testcases && cleaned) {
+    const newResult = cleaned.map((element, index) => {
+      return element == testcases[index];
+    });
+    setResult(newResult); // ✅ updates to boolean[]
+  } else {
+    // if no cleaned or no testcases → reset to empty array
+    setResult([]);
+  }
+}, [output, programInfo]);
+   
+  useEffect(()=>{
+     console.log(result)
+  },[result])
+
+  useEffect(() => {
+  if (programInfo) {
+    // reset to empty or undefined for new test cases
+    setResult(Array(programInfo.testCases.length).fill(undefined));
+  }
+}, [programInfo]);
+
  
   // ✅ do conditional rendering AFTER hooks
   if (!programInfo) return <div>Loading...</div>;
@@ -163,12 +207,12 @@ export default function Rightside() {
         </svg>
       )}
     </button>
-        <button className="text-green-500 bg-neutral-800 p-1.5 ml-3 rounded-sm cursor-pointer flex font-semibold justify-center"><svg className="text-green-500 mr-1 w-[23px] h-[23px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/></svg>
+        <button className="text-green-500 bg-neutral-800 p-1.5 ml-3 rounded-sm cursor-pointer flex font-semibold justify-center"><svg className="text-green-500 mr-1 w-[23px] h-[23px] dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/></svg>
         Submit</button>
          </div>
          <div className="flex items-center">
              <AlertDialogDemo><svg className="w-[23px] cursor-pointer h-[23px] text-neutral-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="square" strokeLinejoin="round" strokeWidth="2" d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></AlertDialogDemo>
-             <svg onClick={toggleFullScreen} className="w-[23px] cursor-pointer ml-2 mr-2 h-[23px] text-gray-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4Zm16 7H4v7h16v-7ZM5 8a1 1 0 0 1 1-1h.01a1 1 0 0 1 0 2H6a1 1 0 0 1-1-1Zm4-1a1 1 0 0 0 0 2h.01a1 1 0 0 0 0-2H9Zm2 1a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Z" clip-rule="evenodd"/></svg>
+             <svg onClick={toggleFullScreen} className="w-[23px] cursor-pointer ml-2 mr-2 h-[23px] text-gray-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4Zm16 7H4v7h16v-7ZM5 8a1 1 0 0 1 1-1h.01a1 1 0 0 1 0 2H6a1 1 0 0 1-1-1Zm4-1a1 1 0 0 0 0 2h.01a1 1 0 0 0 0-2H9Zm2 1a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1Z" clipRule="evenodd"/></svg>
          </div>
       </div>
 
@@ -209,9 +253,24 @@ export default function Rightside() {
             </div>:
             <>
              <div className="flex">
-                {programInfo.testCases.map((_: string, index: number)=>(
-                  <button key={index} onClick={()=>handle_test(index)} className="bg-neutral-700 cursor-pointer font-semibold px-3 ml-3 rounded-sm py-1">Case {index+1}</button>
-                ))} 
+                {programInfo.testCases.map((_: string, index: number) => (
+ <button
+  key={index}
+  onClick={() => handle_test(index)}
+  className={`cursor-pointer font-semibold px-3 ml-3 rounded-sm py-1 ${
+    result[index] === undefined
+      ? "bg-neutral-700" // fallback
+      : result[index]
+      ? "bg-green-500"
+      : "bg-red-500"
+  }`}
+>
+  Case {index + 1}
+</button>
+
+
+))}
+
             </div>
             <p className="ml-4 mt-4 font-bold font-mono">Input:</p>
             <div className="ml-4 bg-neutral-700 rounded-sm mr-4 p-2 font-semibold">{programInfo.testCases[temp].input}</div>

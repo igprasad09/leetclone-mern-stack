@@ -106,4 +106,14 @@ export const textsizeAtom = atom({
 export const exeCode = atom({
    key:"exeCodeatom",
    default:null
+});
+
+export const outputAtom = atom({
+     key:"outputAtom",
+     default: null
+});
+
+export const resultAtom = atom({
+     key: "resultAtom",
+     default: {}
 })
