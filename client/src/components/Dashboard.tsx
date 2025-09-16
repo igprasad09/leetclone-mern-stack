@@ -3,28 +3,37 @@ import {  useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import { TypewriterEffect } from "./ui/typewriter-effect";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { allprogramNamesAtom, profileEmailAtom, profileImageAtom, wordsAtom } from "@/context";
+import { allprogramNamesAtom, profileEmailAtom, profileImageAtom, submitionAtom, wordsAtom } from "@/context";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const words = useRecoilValue(wordsAtom);
-  const setProfileEmail = useSetRecoilState(profileEmailAtom);
-  const setProfileImage = useSetRecoilState(profileImageAtom);
+  const email = useRecoilValue(profileEmailAtom);
   const [allprograms, setAllprograms] = useRecoilState(allprogramNamesAtom);
   const [openVideo, setOpenVideo] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
+  const [submitoins, setSubmitions] = useRecoilState(submitionAtom);
 
   useEffect(() => {
       axios.get("http://localhost:3000/programs")
           .then((res)=>{
                setAllprograms(res.data.programs);
-        })
+        });
   }, []);
  
-  
+  useEffect(()=>{
+      axios.post("http://localhost:3000/programs/allsubmitions",
+            {email}
+        ).then((res)=>{
+               setSubmitions(res.data.programId)
+        })
+  },[email])
 
+  useEffect(()=>{
+       console.log(submitoins)
+  },[submitoins])
    
   function handle_videoOpen(url: string){
          let videoId = "";
@@ -68,7 +77,7 @@ export default function Dashboard() {
 
             {allprograms ? allprograms.map((element, index)=>(
               <tr key={index}  className="odd:bg-zinc-800 cursor-grab even:bg-zinc-700">
-                <td className="p-3"></td>
+                <td className="p-3">{submitoins?.find(element=>element == index+1)? <svg xmlns="http://www.w3.org/2000/svg"fill="none"viewBox="0 0 24 24"stroke="currentColor"className={"w-6 h-6 text-green-500 ml-4"}><path strokeLinecap="round"strokeLinejoin="round"strokeWidth={3}d="M5 13l4 4L19 7"/></svg>:""}</td>
                 <td onClick={()=>navigate(`/program/${element.id}`)} className="p-3 programHover">{element.title}</td>
                 <td className="p-3 text-green-400">{element.difficulty}</td>
                 <td className="p-3">{element.category}</td>

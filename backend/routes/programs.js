@@ -1,6 +1,6 @@
 const express = require("express");
 const routes = express.Router();
-const { programsDB, programinfoDB } = require("../models/db");
+const { programsDB, programinfoDB, userSubmitionsDB } = require("../models/db");
 const { default: axios } = require("axios");
 
 routes.get("/", async (req, res) => {
@@ -88,5 +88,35 @@ routes.post("/programexicute", async (req, res) => {
     return res.status(500).json({ error: "Execution failed" });
   }
 });
+
+routes.post("/submit", async(req, res)=>{
+      const {email, id} = req.body;
+      const programId = Number(id);
+      console.log(programId)
+      try{
+          const updated = await userSubmitionsDB.findOneAndUpdate(
+            {userId: email},
+            {$addToSet: {programId}},
+            {new: true, upsert: true}
+          )
+          res.json(updated)
+      }catch(err){
+          console.error(err);
+          res.status(500).json({ error: "Something went wrong" });
+      }
+});
+
+routes.post("/allsubmitions", async(req, res)=>{
+     const {email} = req.body;
+     try{
+         const submitions = await userSubmitionsDB.findOne({userId: email});
+         return res.json(submitions);
+     }catch(err){
+        console.log(err)
+        return res.status(401).json({
+           message: err
+        })
+     }
+})
 
 module.exports = routes;

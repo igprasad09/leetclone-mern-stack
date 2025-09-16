@@ -1,4 +1,4 @@
-import { profileEmailAtom, profileImageAtom } from "@/context";
+import { profileEmailAtom, profileImageAtom, submitionAtom } from "@/context";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -23,6 +23,7 @@ export default function Navbar({ clock, programdet}: Props) {
   const setProfileEmail = useSetRecoilState(profileEmailAtom);
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const setSubmitions = useSetRecoilState(submitionAtom);
 
   function start_clock(){
          setStartTimer(true)     
@@ -86,6 +87,7 @@ function handle_logout(){
             toast.success(res.data.message)
             setProfileEmail("")
             setProfileImage("")
+            setSubmitions([]);
       });
       }
   }
