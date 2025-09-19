@@ -12,8 +12,9 @@ const app = express();
 
 app.use(cors({
   credentials: true,
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: process.env.CLIENT_URL || "https://your-frontend-domain.com",
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
