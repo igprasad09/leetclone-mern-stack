@@ -17,12 +17,14 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Otp_input } from "./ui/Otp_input";
 import { BackgroundBeams } from "./ui/background-beams";
+import { useNotification } from "./ui/Notification";
 import { toast } from "sonner";
 
 export default function Signup() {
   const [user, setUser] = useRecoilState(newUserAtom);
   const otp = useRecoilValue(otpAtom);
   const [otpLoading, setOtploading] = useRecoilState(otpLoadingAtom);
+  const {showNotification, NotificationComponent} = useNotification();
   const navigator = useNavigate();
 
   // 🔹 Email/Password Login
@@ -65,6 +67,7 @@ export default function Signup() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams />
+      <NotificationComponent/>
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>
