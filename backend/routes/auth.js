@@ -177,4 +177,9 @@ routes.post("/logout", (req, res)=>{
       })
 })
 
+routes("/testing", (req, res)=>{
+  return res.json({
+     message:"working"
+  })
+})
 module.exports = routes;
