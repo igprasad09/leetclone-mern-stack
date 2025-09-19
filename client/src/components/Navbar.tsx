@@ -1,8 +1,8 @@
-import { profileEmailAtom, profileImageAtom, submitionAtom } from "@/context";
+import { profileEmailAtom, submitionAtom } from "@/context";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {useRecoilValue, useSetRecoilState } from "recoil";
 import { toast } from "sonner";
 
 type Props = {
@@ -19,7 +19,7 @@ export default function Navbar({ clock, programdet}: Props) {
             mi: 0,
             sec: 0
   });
-  const [profileImage, setProfileImage] = useRecoilState(profileImageAtom);
+ 
   const setProfileEmail = useSetRecoilState(profileEmailAtom);
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -59,7 +59,7 @@ export default function Navbar({ clock, programdet}: Props) {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/verify", { withCredentials: true })
+      .get("https://backend-nine-red-85.vercel.app/verify", { withCredentials: true })
       .then((res) => {
         setUser(res.data.message);
       })
@@ -69,13 +69,7 @@ export default function Navbar({ clock, programdet}: Props) {
  
   useEffect(() => {
   if (user) {
-    setProfileEmail(user.email ?? user.emails?.[0]?.value ?? "");
-    const photoUrl =
-      user.photos?.[0]?.value ??
-      user.picture ??        // Google OAuth style
-      user.photoURL ??       // Firebase style
-      "";
-    setProfileImage(photoUrl)
+    setProfileEmail(user.email ?? user.emails?.[0]?.value ?? "")
   }
 }, [user]);
 
@@ -83,10 +77,9 @@ function handle_logout(){
       if(profileEmail == ""){
           toast.message("You already Logout")
       }else{
-        axios.post("http://localhost:3000/logout",{},{withCredentials: true}).then((res)=>{
+        axios.post("https://backend-nine-red-85.vercel.app/logout",{},{withCredentials: true}).then((res)=>{
             toast.success(res.data.message)
             setProfileEmail("")
-            setProfileImage("")
             setSubmitions([]);
       });
       }
@@ -153,7 +146,7 @@ function handle_logout(){
           >
             <img
               className="w-8 h-8 mr-4 cursor-pointer rounded-full"
-              src={profileImage != ""? profileImage :"https://res.cloudinary.com/dcazlekl5/image/upload/v1757174737/avatar_hkcn7o.png"}
+              src={"https://res.cloudinary.com/dcazlekl5/image/upload/v1757174737/avatar_hkcn7o.png"}
               alt="profile"
             />
 

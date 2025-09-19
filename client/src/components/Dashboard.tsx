@@ -2,10 +2,10 @@ import axios from "axios";
 import {  useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import { TypewriterEffect } from "./ui/typewriter-effect";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { allprogramNamesAtom, profileEmailAtom, profileImageAtom, submitionAtom, wordsAtom } from "@/context";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { allprogramNamesAtom, profileEmailAtom, submitionAtom, wordsAtom } from "@/context";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -17,14 +17,14 @@ export default function Dashboard() {
   const [submitoins, setSubmitions] = useRecoilState(submitionAtom);
 
   useEffect(() => {
-      axios.get("http://localhost:3000/programs")
+      axios.get("https://backend-nine-red-85.vercel.app/programs")
           .then((res)=>{
                setAllprograms(res.data.programs);
         });
   }, []);
  
   useEffect(()=>{
-      axios.post("http://localhost:3000/programs/allsubmitions",
+      axios.post("https://backend-nine-red-85.vercel.app/programs/allsubmitions",
             {email}
         ).then((res)=>{
                setSubmitions(res.data.programId)

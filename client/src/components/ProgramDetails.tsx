@@ -14,13 +14,13 @@ export default function ProgramDetails() {
     const setProgramInfo = useSetRecoilState(programInfoAtom);
 
     useEffect(()=>{
-         axios.post("http://localhost:3000/programs/programinfo",{id}).then((res)=>{
+         axios.post("https://backend-nine-red-85.vercel.app/programs/programinfo",{id}).then((res)=>{
                 setProgramInfo(res.data.info as any)
          })
     },[id]);
 
     function handle_logout(){
-          axios.post("http://localhost:3000/logout",{},{withCredentials: true}).then((res)=>{
+          axios.post("https://backend-nine-red-85.vercel.app/logout",{},{withCredentials: true}).then((res)=>{
                 toast.success(res.data.message)
                 setProfileEmail("")
           });

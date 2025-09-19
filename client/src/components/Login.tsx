@@ -27,7 +27,7 @@ export default function Login() {
       return toast.error("Input is required!");
     }
     try {
-      const res = await axios.post("http://localhost:3000/login", user, {
+      const res = await axios.post("https://backend-nine-red-85.vercel.app/login", user, {
         withCredentials: true,
       });
       if(res.data.message == "Success"){

@@ -17,14 +17,12 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Otp_input } from "./ui/Otp_input";
 import { BackgroundBeams } from "./ui/background-beams";
-import { useNotification } from "./ui/Notification";
 import { toast } from "sonner";
 
 export default function Signup() {
   const [user, setUser] = useRecoilState(newUserAtom);
   const otp = useRecoilValue(otpAtom);
   const [otpLoading, setOtploading] = useRecoilState(otpLoadingAtom);
-  const {showNotification, NotificationComponent} = useNotification();
   const navigator = useNavigate();
 
   // 🔹 Email/Password Login
@@ -33,7 +31,7 @@ export default function Signup() {
       return toast.error("Input is required!")
     }
     try {
-      const res = await axios.post("http://localhost:3000/signup", {user, otp}, {
+      const res = await axios.post("https://backend-nine-red-85.vercel.app/signup", {user, otp}, {
         withCredentials: true,
       });
       if(res.data.message == "Login successful"){
@@ -49,7 +47,7 @@ export default function Signup() {
   async function handle_otp() {
     if (user.email) {
       setOtploading(true);
-      const response = await axios.post("http://localhost:3000/sendotp", {
+      const response = await axios.post("https://backend-nine-red-85.vercel.app/sendotp", {
         email: user.email,
       });
       if (response) {
@@ -67,7 +65,6 @@ export default function Signup() {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-black/[0.96] relative overflow-hidden">
       <BackgroundBeams />
-      <NotificationComponent/>
 
       <Card className="w-full max-w-sm bg-black text-white">
         <CardHeader>
