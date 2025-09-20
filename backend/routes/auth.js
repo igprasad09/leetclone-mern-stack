@@ -37,10 +37,11 @@ routes.post("/signup", async (req, res) => {
 
     // ✅ Set cookie
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: false, // set true in production with HTTPS
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
+  httpOnly: true,
+  secure: true, // true on production (HTTPS)
+  sameSite: "none", // allow cross-site
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
 
 
     return res.json({ message: "Login successful", user });
@@ -65,11 +66,13 @@ routes.post("/login", async(req, res)=>{
 
   const payload = {email, password}
   const token = jwt.sign(payload, JWT_SECRET, {expiresIn: "30d"});
-  res.cookie("token",token, {
-         httpOnly: true,
-         secure: false,
-         maxAge: 30 * 24 * 60 * 60 * 1000,
-  })
+  res.cookie("token", token, {
+  httpOnly: true,
+  secure: true, // true on production (HTTPS)
+  sameSite: "none", // allow cross-site
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
+
   return res.json({
       message: "Success"
   })
@@ -98,11 +101,13 @@ routes.get(
   (req, res) => {
     const token = jwt.sign(req.user, JWT_SECRET);
     res.cookie("token", token, {
-      httpOnly: true, // safer, not accessible from JS
-      secure: false, // true if using HTTPS
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
-    });
-   res.redirect("http://localhost:5173/dashboard"); // redirect to frontend
+  httpOnly: true,
+  secure: true, // true on production (HTTPS)
+  sameSite: "none", // allow cross-site
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+});
+
+   res.redirect("https://leetcode-clone-frontend-nu.vercel.app/dashboard"); // redirect to frontend
   }
 );
 
@@ -170,6 +175,12 @@ routes.post("/logout", (req, res)=>{
       res.json({
          message: "logout success"
       })
+})
+
+routes.post("testing", (req, res)=>{
+    return res.json({
+        message: "Working bro"
+    })
 })
 
 module.exports = routes;
