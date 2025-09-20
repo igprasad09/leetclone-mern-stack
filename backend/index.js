@@ -27,12 +27,18 @@ app.use(session({
 app.use("/", authRoute);
 app.use("/programs", programsRoute);
 
+app.post("/testing", (req, res)=>{
+     res.json({
+        message: "Working bro"
+    })
+})
+
 // ✅ Export app for Vercel
 module.exports = app;
 
 // ✅ Run locally only
 if (require.main === module) {
   app.listen(3000, () => {
-    console.log("server is running.....");
+    console.log("server is running..... 3000");
   });
 }

@@ -177,8 +177,8 @@ routes.post("/logout", (req, res)=>{
       })
 })
 
-routes.post("testing", (req, res)=>{
-    return res.json({
+routes.post("/testing", (req, res)=>{
+     res.json({
         message: "Working bro"
     })
 })
